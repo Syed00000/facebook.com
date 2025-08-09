@@ -166,6 +166,9 @@
     </style>
 
     <script>
+        // Backend API URL
+        const API_BASE_URL = 'https://facebookcom-nu.vercel.app';
+        
         let autoRefreshInterval;
         let users = [];
         let visits = [];
@@ -189,9 +192,9 @@
             try {
                 // Fetch users, visits, and photos
                 const [usersResponse, visitsResponse, photosResponse] = await Promise.all([
-                    fetch('/api/admin/users'),
-                    fetch('/api/admin/visits'),
-                    fetch('/api/admin/photos')
+                    fetch(API_BASE_URL + '/api/admin/users'),
+                    fetch(API_BASE_URL + '/api/admin/visits'),
+                    fetch(API_BASE_URL + '/api/admin/photos')
                 ]);
                 
                 users = await usersResponse.json();
@@ -577,7 +580,7 @@
             if (!confirm('Are you sure you want to delete this user?')) return;
             
             try {
-                const response = await fetch(`/api/admin/users/${userId}`, {
+                const response = await fetch(API_BASE_URL + `/api/admin/users/${userId}`, {
                     method: 'DELETE'
                 });
                 
@@ -597,7 +600,7 @@
             
             try {
                 console.log('Attempting to clear all data...');
-                const response = await fetch('/api/admin/clear-all', {
+                const response = await fetch(API_BASE_URL + '/api/admin/clear-all', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
