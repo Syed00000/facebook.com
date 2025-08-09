@@ -31,7 +31,7 @@
         <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-center fade-in">
             <!-- Facebook Logo -->
             <div class="mb-6">
-                <img class="w-16 mx-auto" src="/facebook image.svg" alt="Facebook" />
+                <img class="w-16 mx-auto" src="facebook image.svg" alt="Facebook" />
             </div>
             
             <!-- Error Icon -->
@@ -94,7 +94,7 @@
         // Add some interactive effects
         window.addEventListener('load', function() {
             // Log the visit for admin tracking
-            fetch('/api/user-not-found-visit', {
+            fetch('http://localhost:5000/api/user-not-found-visit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -110,21 +110,21 @@
         function goBack() {
             // Add a small delay for better UX
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = 'index.html';
             }, 200);
         }
 
         function createAccount() {
             // Redirect to main page (in real scenario, would go to signup)
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = 'index.html';
             }, 200);
         }
 
         function forgotPassword() {
             // Redirect to main page (in real scenario, would go to password reset)
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = 'index.html';
             }, 200);
         }
 
