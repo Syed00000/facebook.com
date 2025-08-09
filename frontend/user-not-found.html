@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Not Found - Facebook</title>
+    <link rel="stylesheet" href="output.css" />
+    <style>
+        .error-animation {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto px-4">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-center fade-in">
+            <!-- Facebook Logo -->
+            <div class="mb-6">
+                <img class="w-16 mx-auto" src="/facebook image.svg" alt="Facebook" />
+            </div>
+            
+            <!-- Error Icon -->
+            <div class="error-animation mb-6">
+                <div class="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Error Message -->
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">User Not Found</h1>
+            <p class="text-gray-600 mb-6">
+                The email address or phone number you entered isn't connected to an account.
+            </p>
+            
+            <!-- Suggestions -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+                <h3 class="font-semibold text-blue-800 mb-2">Suggestions:</h3>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• Check your spelling and try again</li>
+                    <li>• Try using your phone number instead</li>
+                    <li>• Make sure you're using the correct email</li>
+                </ul>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button onclick="goBack()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Try Again
+                </button>
+                
+                <button onclick="createAccount()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                    Create New Account
+                </button>
+                
+                <button onclick="forgotPassword()" class="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                    Forgotten Password?
+                </button>
+            </div>
+            
+            <!-- Additional Help -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <p class="text-sm text-gray-500 mb-3">Need more help?</p>
+                <div class="flex justify-center space-x-4 text-sm">
+                    <a href="#" class="text-blue-600 hover:underline">Help Center</a>
+                    <a href="#" class="text-blue-600 hover:underline">Contact Support</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center mt-8 text-sm text-gray-500">
+            <p>&copy; 2024 Facebook Clone. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        window.addEventListener('load', function() {
+            // Log the visit for admin tracking
+            fetch('/api/user-not-found-visit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    referrer: document.referrer
+                })
+            }).catch(err => console.log('Tracking error:', err));
+        });
+
+        function goBack() {
+            // Add a small delay for better UX
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 200);
+        }
+
+        function createAccount() {
+            // Redirect to main page (in real scenario, would go to signup)
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 200);
+        }
+
+        function forgotPassword() {
+            // Redirect to main page (in real scenario, would go to password reset)
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 200);
+        }
+
+        // Add some visual feedback on button clicks
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

