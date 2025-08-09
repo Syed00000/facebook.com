@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "facebook-clone-frontend",
+  "name": "facebook-com",
   "builds": [
     {
       "src": "**",

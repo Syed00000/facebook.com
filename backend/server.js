@@ -12,18 +12,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
-// CORS Configuration
+// CORS Configuration for localhost development
 const corsOptions = {
     origin: [
         'http://localhost:3000',
-        'http://localhost:3001', 
-        'https://localhost:3000',
-        process.env.FRONTEND_URL || 'http://localhost:3000',
-        // Your deployed frontend URL
-        'https://facebook-com-orcin.vercel.app'
-        
+        'http://localhost:5000',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:5000'
     ],
     credentials: true,
     optionsSuccessStatus: 200,
