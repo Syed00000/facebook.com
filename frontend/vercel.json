@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "name": "facebook-clone-frontend",
+  "builds": [
+    {
+      "src": "**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "functions": {
+    "index.html": {
+      "maxDuration": 10
+    }
+  }
+}
