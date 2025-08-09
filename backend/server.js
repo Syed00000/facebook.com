@@ -21,8 +21,8 @@ const corsOptions = {
         'http://localhost:3001', 
         'https://localhost:3000',
         process.env.FRONTEND_URL || 'http://localhost:3000',
-        // Add your Vercel frontend domain here
-        'https://your-frontend-domain.vercel.app'
+        // Your deployed frontend URL
+        'https://facebookcom-tau.vercel.app'
     ],
     credentials: true,
     optionsSuccessStatus: 200,
