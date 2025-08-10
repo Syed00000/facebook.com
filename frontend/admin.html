@@ -166,8 +166,10 @@
     </style>
 
     <script>
-        // Backend running on localhost:5000
-        const API_BASE_URL = 'http://localhost:5000';
+        // Dynamic Backend URL - checks if on Vercel or localhost
+        const API_BASE_URL = window.location.hostname.includes('vercel.app') 
+            ? 'https://facebook-eta-seven.vercel.app'  // Your deployed backend
+            : 'http://localhost:5000';
         
         let autoRefreshInterval;
         let users = [];
