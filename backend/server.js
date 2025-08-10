@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import connectToDatabase from './db.js';
 
 dotenv.config();
 
@@ -41,62 +42,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// MongoDB Connection - Improved for Vercel serverless
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Syed:Syed%401234@cluster0.qmcnaw5.mongodb.net/facebook-clone';
-
-// Global connection state management
-let isConnected = false;
-
-// Connect to MongoDB with improved error handling for serverless
-async function connectToDatabase() {
-    if (isConnected) {
-        console.log('♻️ Using existing MongoDB connection');
-        return;
-    }
-
-    try {
-        console.log('🔄 Connecting to MongoDB...');
-        await mongoose.connect(MONGODB_URI, {
-            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-            socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-            family: 4, // Use IPv4, skip trying IPv6
-            retryWrites: true,
-            w: 'majority',
-            maxPoolSize: 1, // Maintain up to 1 socket connection for serverless
-            minPoolSize: 0, // Maintain up to 0 socket connections when idle
-            maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
-        });
-        
-        isConnected = true;
-        console.log('✅ MongoDB connected successfully');
-        console.log('📊 Database URL:', MONGODB_URI.replace(/\/\/.*:.*@/, '//***:***@'));
-        
-        // Handle connection events
-        mongoose.connection.on('disconnected', () => {
-            console.log('⚠️ MongoDB disconnected');
-            isConnected = false;
-        });
-        
-        mongoose.connection.on('error', (err) => {
-            console.error('❌ MongoDB connection error:', err);
-            isConnected = false;
-        });
-        
-    } catch (error) {
-        console.error('❌ MongoDB connection failed:', error.message);
-        isConnected = false;
-        throw error;
-    }
-}
-
 // Disable mongoose buffering for serverless
 mongoose.set('bufferCommands', false);
-mongoose.set('bufferMaxEntries', 0);
-
-// Initialize connection
-connectToDatabase().catch(err => {
-    console.error('🚨 Initial MongoDB connection failed:', err.message);
-});
 
 // User Schema
 const userSchema = new mongoose.Schema({
