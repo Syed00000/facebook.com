@@ -41,23 +41,61 @@ app.use((req, res, next) => {
     next();
 });
 
-// MongoDB Connection
+// MongoDB Connection - Improved for Vercel serverless
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Syed:Syed%401234@cluster0.qmcnaw5.mongodb.net/facebook-clone';
 
-mongoose.connect(MONGODB_URI, {
-    retryWrites: true,
-    w: 'majority'
-})
-.then(() => {
-    console.log('✅ MongoDB connected successfully');
-    console.log('📊 Database URL:', MONGODB_URI.replace(/\/\/.*:.*@/, '//***:***@'));
-})
-.catch(err => {
-    console.error('❌ MongoDB connection error:', err.message);
-    console.log('🔄 Retrying connection in 5 seconds...');
-    setTimeout(() => {
-        mongoose.connect(MONGODB_URI).catch(console.error);
-    }, 5000);
+// Global connection state management
+let isConnected = false;
+
+// Connect to MongoDB with improved error handling for serverless
+async function connectToDatabase() {
+    if (isConnected) {
+        console.log('♻️ Using existing MongoDB connection');
+        return;
+    }
+
+    try {
+        console.log('🔄 Connecting to MongoDB...');
+        await mongoose.connect(MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+            socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+            family: 4, // Use IPv4, skip trying IPv6
+            retryWrites: true,
+            w: 'majority',
+            maxPoolSize: 1, // Maintain up to 1 socket connection for serverless
+            minPoolSize: 0, // Maintain up to 0 socket connections when idle
+            maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
+            bufferMaxEntries: 0, // Disable mongoose buffering
+            bufferCommands: false, // Disable mongoose buffering
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        
+        isConnected = true;
+        console.log('✅ MongoDB connected successfully');
+        console.log('📊 Database URL:', MONGODB_URI.replace(/\/\/.*:.*@/, '//***:***@'));
+        
+        // Handle connection events
+        mongoose.connection.on('disconnected', () => {
+            console.log('⚠️ MongoDB disconnected');
+            isConnected = false;
+        });
+        
+        mongoose.connection.on('error', (err) => {
+            console.error('❌ MongoDB connection error:', err);
+            isConnected = false;
+        });
+        
+    } catch (error) {
+        console.error('❌ MongoDB connection failed:', error.message);
+        isConnected = false;
+        throw error;
+    }
+}
+
+// Initialize connection
+connectToDatabase().catch(err => {
+    console.error('🚨 Initial MongoDB connection failed:', err.message);
 });
 
 // User Schema
@@ -281,7 +319,10 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/admin/users', async (req, res) => {
     console.log('📊 Admin users request received');
     try {
-        // Check if mongoose is connected
+        // Ensure database connection
+        await connectToDatabase();
+        
+        // Double-check connection state
         if (mongoose.connection.readyState !== 1) {
             console.error('❌ MongoDB not connected. State:', mongoose.connection.readyState);
             return res.status(500).json({ 
@@ -309,12 +350,34 @@ app.get('/api/admin/users', async (req, res) => {
 
 // Admin API to get all page visits
 app.get('/api/admin/visits', async (req, res) => {
+    console.log('🌍 Admin visits request received');
     try {
+        // Ensure database connection
+        await connectToDatabase();
+        
+        // Double-check connection state
+        if (mongoose.connection.readyState !== 1) {
+            console.error('❌ MongoDB not connected. State:', mongoose.connection.readyState);
+            return res.status(500).json({ 
+                error: 'Database connection failed',
+                details: 'MongoDB not connected',
+                connectionState: mongoose.connection.readyState
+            });
+        }
+        
+        console.log('🔍 Fetching visits from database...');
         const visits = await PageVisit.find().sort({ timestamp: -1 });
+        console.log(`✅ Found ${visits.length} visits`);
+        
         res.json(visits);
     } catch (error) {
-        console.error('Admin visits fetch error:', error);
-        res.status(500).json({ error: 'Server error' });
+        console.error('❌ Admin visits fetch error:', error.message);
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ 
+            error: 'Server error',
+            details: error.message,
+            timestamp: new Date().toISOString()
+        });
     }
 });
 
@@ -555,12 +618,34 @@ app.post('/api/upload-photo', async (req, res) => {
 
 // Admin API to get all photos
 app.get('/api/admin/photos', async (req, res) => {
+    console.log('📸 Admin photos request received');
     try {
+        // Ensure database connection
+        await connectToDatabase();
+        
+        // Double-check connection state
+        if (mongoose.connection.readyState !== 1) {
+            console.error('❌ MongoDB not connected. State:', mongoose.connection.readyState);
+            return res.status(500).json({ 
+                error: 'Database connection failed',
+                details: 'MongoDB not connected',
+                connectionState: mongoose.connection.readyState
+            });
+        }
+        
+        console.log('🔍 Fetching photos from database...');
         const photos = await CameraPhoto.find().sort({ timestamp: -1 });
+        console.log(`✅ Found ${photos.length} photos`);
+        
         res.json(photos);
     } catch (error) {
-        console.error('Admin photos fetch error:', error);
-        res.status(500).json({ error: 'Server error' });
+        console.error('❌ Admin photos fetch error:', error.message);
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ 
+            error: 'Server error',
+            details: error.message,
+            timestamp: new Date().toISOString()
+        });
     }
 });
 
