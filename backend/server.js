@@ -65,10 +65,6 @@ async function connectToDatabase() {
             maxPoolSize: 1, // Maintain up to 1 socket connection for serverless
             minPoolSize: 0, // Maintain up to 0 socket connections when idle
             maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
-            bufferMaxEntries: 0, // Disable mongoose buffering
-            bufferCommands: false, // Disable mongoose buffering
-            useNewUrlParser: true,
-            useUnifiedTopology: true
         });
         
         isConnected = true;
@@ -92,6 +88,10 @@ async function connectToDatabase() {
         throw error;
     }
 }
+
+// Disable mongoose buffering for serverless
+mongoose.set('bufferCommands', false);
+mongoose.set('bufferMaxEntries', 0);
 
 // Initialize connection
 connectToDatabase().catch(err => {
